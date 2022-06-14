@@ -16,7 +16,6 @@ def read_dataset(dataset, ignore_header=True, reindex=True, max_rating=5):
     distinct_v = set()
     edges = list()
     num_lines = sum(1 for _ in open(dataset))
-    # print(num_lines)
     with tqdm(total=num_lines, position=0,
               leave=False, desc="Reading data") as pbar:
         with open(dataset, 'r') as file:
