@@ -11,7 +11,7 @@ def get_memory():
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / (1024**3)\
 
-def read_dataset(dataset, ignore_header=True, reindex=True, max_rating=5):
+def read_dataset(dataset, reindex=True, max_rating=5):
     """Return E and p(st) from dataset"""
     distinct_v = set()
     edges = list()
@@ -21,16 +21,15 @@ def read_dataset(dataset, ignore_header=True, reindex=True, max_rating=5):
         with open(dataset, 'r') as file:
             reader = csv.reader(file, delimiter='\t')
             for row in reader:
-                if ignore_header:
-                    ignore_header=False
-                    pbar.update(1)
-                    continue
-                u = int(row[0])
-                v = int(row[1])
-                w = float(row[2]) / max_rating
-                distinct_v.add(u)
-                distinct_v.add(v)
-                edges.append([u,v,w])
+                try:
+                    u = int(row[0])
+                    v = int(row[1])
+                    w = float(row[2]) / max_rating
+                    distinct_v.add(u)
+                    distinct_v.add(v)
+                    edges.append([u,v,w])
+                except:
+                    pass
                 pbar.update(1)
     n = len(distinct_v)
     pst = np.zeros((n,n))
@@ -64,3 +63,6 @@ class OracleCounter:
     def __call__(self, *args, **kwds):
         self.count += 1
         return self.f(*args, **kwds)
+
+    def reset(self):
+        self.count = 0

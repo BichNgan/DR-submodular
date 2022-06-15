@@ -2,6 +2,8 @@ from loguru import logger
 from tqdm import tqdm
 import numpy as np
 
+from tools import get_memory
+
 def log_base_n(n, x):
     return np.log(x) / np.log(n)
 
@@ -12,6 +14,7 @@ class Algorithm2:
         self.f = f
         self.k = k
         self.epsilon = epsilon
+        self.memory = 0
 
     def __generate_o(self, m):
         o_min = int(np.ceil(log_base_n(1 + self.epsilon, m)))
@@ -45,7 +48,7 @@ class Algorithm2:
         x_arr = dict()
         m = 0
         n = len(self.e_arr)
-        with tqdm(total=n, position=0, leave=True, desc="Algorithm 2") as pbar:
+        with tqdm(total=n, leave=False, desc="Algorithm 2") as pbar:
             for e in self.e_arr:
                 xe = np.full(n, 0)
                 xe[e] = 1
@@ -64,6 +67,7 @@ class Algorithm2:
                     pbar.update(1)
         x_list = [x_arr[key] for key in x_arr.keys()]
         fx_list = [self.f(x) for x in x_list]
+        self.memory = get_memory()
         return x_list[np.argmax(fx_list)]
 
 class Algorithm3:
@@ -73,6 +77,7 @@ class Algorithm3:
         self.f = f
         self.k = k
         self.epsilon = epsilon
+        self.memory = 0
 
     def __generate_i(self, be):
         i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
@@ -98,7 +103,7 @@ class Algorithm3:
     def run(self):
         n = len(self.e_arr)
         x = np.full(n, 0)
-        with tqdm(total=n, position=0, leave=True) as pbar:
+        with tqdm(total=n, leave=False) as pbar:
             pbar.set_description("Algorithm 3")
             for e in self.e_arr:
                 be = self.b_arr[e]
@@ -121,7 +126,7 @@ class Algorithm3:
                 break
             x_new[index] = x[index]
             x_sum += x[index]
-        
+        self.memory = get_memory()
         return x_new
 
 class Algorithm4:
@@ -131,6 +136,7 @@ class Algorithm4:
         self.f = f
         self.k = k
         self.epsilon = epsilon
+        self.memory = 0
 
     def __generate_i(self, be):
         i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
@@ -176,6 +182,7 @@ class Algorithm4:
                         break
                 pbar.update(1)
                 theta = (1 - self.epsilon) * theta
+        self.memory = get_memory()
         return x
 
 class ThresholdGreedy:
@@ -185,6 +192,7 @@ class ThresholdGreedy:
         self.f = f
         self.k = k
         self.epsilon = epsilon
+        self.memory = 0
 
     def __binary_search(self, x, e, tau):
         l = 1
@@ -216,13 +224,15 @@ class ThresholdGreedy:
         d = max([self.f(xe) for xe in ls_xe])
         tau = d
         threshold = self.epsilon / self.k * d
-        with tqdm(total = self.k, position=0, leave=True, desc="Threshold Greedy") as pbar:
+        with tqdm(total = self.k, leave=False, desc="Threshold Greedy") as pbar:
             while tau >= threshold:
                 for e in self.e_arr:
                     l = self.__binary_search(x, e, tau)
                     x += l * ls_xe[e]
                     if sum(x) == self.k:
                         pbar.update(l)
+                        self.memory = get_memory()
                         return x
                     pbar.update(int(l))
+        self.memory = get_memory()
         return x
