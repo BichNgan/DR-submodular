@@ -104,8 +104,7 @@ class Algorithm3:
     def run(self):
         n = len(self.e_arr)
         x = np.full(n, 0)
-        with tqdm(total=n, leave=False) as pbar:
-            pbar.set_description("Algorithm 3")
+        with tqdm(total=n, leave=False, desc="Algorithm 3") as pbar:
             for e in self.e_arr:
                 be = self.b_arr[e]
                 xe = np.full(n, 0)
@@ -167,7 +166,8 @@ class Algorithm4:
         xe_dict = {}
         exit_threshold = (1 - self.epsilon) * gamma / (4 * self.k) 
         estimated_iterations = np.ceil(log_base_n(1 + self.epsilon, exit_threshold/theta))
-        with tqdm(total=estimated_iterations, position=0, leave=True, desc="Algorithm 4") as pbar:
+        logger.info(f'Estimated iter: {estimated_iterations}, exit: {exit_threshold}, gamma: {gamma}')
+        with tqdm(total=estimated_iterations, leave=False, desc="Algorithm 4") as pbar:
             while theta >= (1 - self.epsilon) * gamma / (4 * self.k):
                 for e in self.e_arr:
                     if e not in xe_dict:

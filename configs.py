@@ -4,6 +4,7 @@ import numpy as np
 
 data_dir = 'data'
 datasets = ['out.wikilens-ratings','out.movielens-10m_rating']
+delimiters = ['\t', ' ']
 log_dir = 'log'
 output_dir = 'output'
 k_values = np.array([50, 100, 500, 1000, 2000])
