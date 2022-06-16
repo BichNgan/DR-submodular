@@ -18,10 +18,10 @@ if __name__ == "__main__":
         logger.info(f'Processing {dataset}')
         E, pst = read_dataset(f'{data_dir}/{dataset}')
         n = len(E)
-        f = budget_allocation(n, pst, max_workers)
         #f = monotone_reduction(n)
+        f = budget_allocation(n, pst)
         for b, k in zip(b_values, k_values):
-            f.reset()
+            f.reset() 
             B = np.full(n, b)
             start = time.time()
             alg2 = Algorithm2(e_arr=E, b_arr=B, f=f, k=k, epsilon=epsilon)

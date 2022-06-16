@@ -1,18 +1,11 @@
-from concurrent.futures import ProcessPoolExecutor
-
 import numpy as np
 
 from tools import OracleCounter
 
-power_x = 0
-pool: ProcessPoolExecutor 
-
-def init_pool(max_workers):
-    global pool
-    pool = ProcessPoolExecutor(max_workers=max_workers)
+x: np.ndarray 
 
 def product_of_power(wi):
-    return 1 - np.prod(pow(wi, power_x))
+    return 1 - np.prod(np.power(wi, x))
 
 def monotone_reduction(n):
     reduce_vector = np.random.uniform(low=1, high=100, size=n)
@@ -21,22 +14,19 @@ def monotone_reduction(n):
     return OracleCounter(function)
 
 
-def budget_allocation(n, pst=None, workers=1):
+def budget_allocation(n, pst=None):
     if pst is None:
         pst = np.random.uniform(size=(n,n))
-        for index in range(len(pst)):
+        for index in range(n):
             thres = np.random.uniform(0.5, 0.9)
             pst[index, pst[index] < thres] = 0
             pst[index, index] = 0
-    wst = 1 - pst
-    t_wst = wst.transpose()
-    init_pool(workers)
-    def function(x):
-        global power_x, pool
-        _x = np.array(x)
-        power_x = _x
-        sources = _x > 0
-        targets = np.sum(pst[sources], axis=0) > 0
-        return np.sum(list(pool.map(product_of_power, t_wst[targets])))
-    
+    wst_t = (1 - pst).transpose()
+    def function(_x):
+        nonlocal wst_t, pst
+        global x
+        x = _x
+        sources = x > 0
+        targets = np.dot(np.ones(len(pst[sources])), pst[sources]) > 0 # this is where it's stuck!!!!!
+        return sum(map(product_of_power, wst_t[targets])) 
     return OracleCounter(function)

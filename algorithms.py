@@ -42,7 +42,7 @@ class Algorithm2:
           return result
         except:
           return 0
-    
+
     @logger.catch
     def run(self):
         x_arr = dict()
@@ -64,7 +64,7 @@ class Algorithm2:
                         x_arr[v] += knew*xe
                     else:
                         break
-                    pbar.update(1)
+                pbar.update(1)
         x_list = [x_arr[key] for key in x_arr.keys()]
         fx_list = [self.f(x) for x in x_list]
         self.memory = get_memory()
@@ -78,6 +78,7 @@ class Algorithm3:
         self.k = k
         self.epsilon = epsilon
         self.memory = 0
+    
 
     def __generate_i(self, be):
         i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
