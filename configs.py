@@ -3,7 +3,7 @@ import subprocess
 import numpy as np
 
 data_dir = 'data'
-datasets = ['out.wikilens-ratings','out.movielens-10m_rating']
+datasets = ['out.wikilens-ratings','out.movielens-1m']
 delimiters = ['\t', ' ']
 log_dir = 'log'
 output_dir = 'output'

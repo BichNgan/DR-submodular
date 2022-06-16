@@ -12,7 +12,7 @@ from objective_functions import budget_allocation, monotone_reduction
 
 if __name__ == "__main__":
     init_config()
-    logger.add(f"{log_dir}/alg4_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')}.log", 
+    logger.add(f"{log_dir}/tg_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')}.log", 
                rotation="20 MB")
     for dataset, delimiter in zip(datasets, delimiters):
         results = []
