@@ -43,6 +43,23 @@ class Algorithm2:
         except:
           return 0
 
+    def __binary_search(self, x_arr, xe, i_arr, v):
+        l = 0
+        r = len(i_arr) - 1
+        xv = x_arr[v]
+        fx = self.f(xv)
+        if self.f(xv + i_arr[0] * xe) - fx < i_arr[0] * v / (2 * self.k):
+            return i_arr[0]
+        while r > l:
+            m = (l + r) // 2
+            df = self.f(xv + i_arr[m] * xe) - fx
+            threshold = i_arr[m] * v / (2 * self.k)
+            if df >= threshold:
+                l = m + 1
+                continue
+            r = m - 1
+        return i_arr[l]
+
     @logger.catch
     def run(self):
         x_arr = dict()
@@ -60,7 +77,7 @@ class Algorithm2:
                         x_arr[v] = np.full(n, 0)
                     ke = self.__find_ke(x_arr, xe, i_arr, v)
                     knew = min(ke, self.k - np.sum(x_arr[v]))
-                    if knew != 0:
+                    if knew > 0:
                         x_arr[v] += knew*xe
                     else:
                         break
@@ -200,18 +217,20 @@ class ThresholdGreedy:
         r = min(self.b_arr[e] - x[e], self.k - sum(x))
         xe = np.zeros(len(x))
         xe[e] = 1
-        if self.f(x + r*xe >= tau):
+        fx = self.f(x)
+        if self.f(x + r*xe) - fx >= tau:
             return r
-        if self.f(x + xe) < tau:
+        if self.f(x + xe) - fx < tau:
             return 0
         while r > l + 1:
             m = (l + r) // 2
-            if self.f(x + m*xe) >= tau:
+            if self.f(x + m*xe) - fx >= tau:
                 l = m
                 continue
             r = m
         return l
 
+    @logger.catch
     def run(self):
         n = len(self.e_arr)
 
@@ -228,6 +247,8 @@ class ThresholdGreedy:
         with tqdm(total = self.k, leave=False, desc="Threshold Greedy") as pbar:
             while tau >= threshold:
                 for e in self.e_arr:
+                    if self.f.count > 150000:
+                        logger.info(f'F count exceed 150000 {self.f.count}')
                     l = self.__binary_search(x, e, tau)
                     x += l * ls_xe[e]
                     if sum(x) == self.k:

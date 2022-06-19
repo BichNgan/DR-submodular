@@ -20,6 +20,7 @@ if __name__ == "__main__":
         E, pst = read_dataset(f'{data_dir}/{dataset}', delimiter=delimiter)
         n = len(E)
         #f = monotone_reduction(n)
+        #E = list(range(n))
         f = budget_allocation(n, pst)
         for b, k in zip(b_values, k_values):
             logger.info(f'### Running for b={b} and k={k} ###')
@@ -43,5 +44,5 @@ if __name__ == "__main__":
             -------Result-------
             {json.dumps(json_data)}
             --------------------""")
-        df = to_pandas(results)
-        save_result(df, f'{output_dir}/alg4_{dataset}.csv')
+            df = to_pandas(results)
+            save_result(df, f'{output_dir}/alg4_{dataset}.csv')
