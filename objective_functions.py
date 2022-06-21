@@ -28,6 +28,6 @@ def budget_allocation(n, pst=None):
         global x
         x = _x
         sources = x > 0
-        targets = np.dot(np.ones(len(pst[sources])), pst[sources]) > 0 # this is where it's stuck!!!!!
+        targets = np.dot(np.ones(len(pst[sources])), pst[sources]) > 0 
         return sum(map(product_of_power, wst_t[targets])) 
     return OracleCounter(function)
