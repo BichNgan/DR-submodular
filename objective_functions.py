@@ -9,8 +9,9 @@ def product_of_power(wi):
 
 def monotone_reduction(n):
     reduce_vector = np.random.uniform(low=1, high=100, size=n)
+    reduce_vector /= np.sum(reduce_vector)
     def function(x):
-        return np.dot(x,reduce_vector) 
+        return np.dot(x,reduce_vector)*n 
     return OracleCounter(function)
 
 

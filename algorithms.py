@@ -21,8 +21,9 @@ class Algorithm2:
         o_max = int(np.floor(log_base_n(1 + self.epsilon, 2*self.k*m)))
         o_power = np.arange(o_min, o_max+1)
         o_base = np.full(len(o_power), 1 + self.epsilon)
-        o_arr = set(np.ceil(np.power(o_base, o_power)).astype(int))
-        return list(o_arr)
+        o_arr = list(set(np.ceil(np.power(o_base, o_power)).astype(int)))
+        o_arr.sort()
+        return o_arr
 
     def __generate_i(self, be):
         i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
@@ -32,9 +33,9 @@ class Algorithm2:
         i_arr = set(np.ceil(np.power(i_base, i_power)*be).astype(int))
         return list(i_arr)
 
-    def __find_ke(self, x_arr, xe, i_arr, v):
-        fx = self.f(x_arr[v])
-        delta_f = np.array([(self.f(x_arr[v] + xe*i) - fx) for i in i_arr])
+    def __find_ke(self, xv, xe, i_arr, v):
+        fx = self.f(xv)
+        delta_f = np.array([(self.f(xv + xe*i) - fx) for i in i_arr])
         i_np = np.array(i_arr)
         evaluation = i_np * v / (2 * self.k)
         try:
@@ -73,9 +74,9 @@ class Algorithm2:
                 o_arr = self.__generate_o(m)
                 i_arr = self.__generate_i(self.b_arr[e])
                 for v in o_arr:
-                    if v not in x_arr:
+                    if v not in x_arr.keys():
                         x_arr[v] = np.full(n, 0)
-                    ke = self.__find_ke(x_arr, xe, i_arr, v)
+                    ke = self.__binary_search(x_arr, xe, i_arr, v)
                     knew = min(ke, self.k - np.sum(x_arr[v]))
                     if knew > 0:
                         x_arr[v] += knew*xe
@@ -172,6 +173,24 @@ class Algorithm4:
             return result
         except:
             return 0
+
+    def __binary_search(self, x, xe, i_arr, theta):
+        l = 0
+        r = len(i_arr) - 1
+        fx = self.f(x)
+        if self.f(x + i_arr[0] * xe) - fx < theta:
+            return i_arr[0]
+        while r > l:
+            m = (l + r) // 2
+            df = self.f(x + i_arr[m] * xe) - fx
+            if df >= theta:
+                r = m - 1
+                continue
+            break
+        try:
+            return min(i_arr[l:r+1])
+        except:
+            return 0
     
     @logger.catch
     def run(self):
@@ -192,7 +211,7 @@ class Algorithm4:
                         xe_dict[e][e] = 1
                     be = self.b_arr[e]
                     i_arr = self.__generate_i(be)
-                    ke = self.__find_ke(x, xe_dict[e], i_arr, theta)
+                    ke = self.__binary_search(x, xe_dict[e], i_arr, theta)
                     k_new = min(ke, self.k - np.sum(x))
                     if k_new != 0:
                         x += xe_dict[e] * k_new
@@ -247,8 +266,6 @@ class ThresholdGreedy:
         with tqdm(total = self.k, leave=False, desc="Threshold Greedy") as pbar:
             while tau >= threshold:
                 for e in self.e_arr:
-                    if self.f.count > 150000:
-                        logger.info(f'F count exceed 150000 {self.f.count}')
                     l = self.__binary_search(x, e, tau)
                     x += l * ls_xe[e]
                     if sum(x) == self.k:

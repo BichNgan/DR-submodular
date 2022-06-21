@@ -9,7 +9,7 @@ import numpy as np
 def get_memory():
     """Get current memory usage in GB"""
     process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024**3)\
+    return process.memory_info().rss / (1024**3)
 
 def read_dataset(dataset, reindex=True, max_rating=5, delimiter=','):
     """Return E and p(st) from dataset"""
