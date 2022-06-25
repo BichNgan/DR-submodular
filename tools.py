@@ -33,6 +33,7 @@ def read_dataset(dataset, reindex=True, max_rating=5, delimiter=','):
                 pbar.update(1)
     n = len(distinct_v)
     pst = np.zeros((n,n))
+    is_source = np.full(n, False)
 
     with tqdm(total = n + len(edges),
               position=0, leave=False, 
@@ -46,14 +47,16 @@ def read_dataset(dataset, reindex=True, max_rating=5, delimiter=','):
                 pbar.update(1)
             for edge in edges:
                 u, v, w = edge
+                is_source[u] = True
                 pst[new_index[u], new_index[v]] = w
                 pbar.update(1)
-            return np.arange(n), pst
+            return np.arange(n), pst, is_source
         for edge in edges:
             u, v, w = edge
+            is_source[u] = True
             pst[u, v] = w
             pbar.update(1)
-    return np.arange(n), pst
+    return np.arange(n), pst, is_source
 
 class OracleCounter:
     def __init__(self, f):

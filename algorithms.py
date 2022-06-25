@@ -7,14 +7,21 @@ from tools import get_memory
 def log_base_n(n, x):
     return np.log(x) / np.log(n)
 
-class Algorithm2:
-    def __init__(self, e_arr, b_arr, f, k, epsilon):
+class Algorithm:
+    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
         self.e_arr = e_arr
         self.b_arr = b_arr
         self.f = f
         self.k = k
         self.epsilon = epsilon
         self.memory = 0
+        self.is_source = is_source
+        if self.is_source is None:
+            self.is_source = np.full(len(self.e_arr), True)
+
+class Algorithm2(Algorithm):
+    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
 
     def __generate_o(self, m):
         o_min = int(np.ceil(log_base_n(1 + self.epsilon, m)))
@@ -68,6 +75,9 @@ class Algorithm2:
         n = len(self.e_arr)
         with tqdm(total=n, leave=False, desc="Algorithm 2") as pbar:
             for e in self.e_arr:
+                if not self.is_source[e]:
+                    pbar.update(1)
+                    continue
                 xe = np.full(n, 0)
                 xe[e] = 1
                 m = max(self.f(xe), m)
@@ -88,15 +98,9 @@ class Algorithm2:
         self.memory = get_memory()
         return x_list[np.argmax(fx_list)]
 
-class Algorithm3:
-    def __init__(self, e_arr, b_arr, f, k, epsilon):
-        self.e_arr = e_arr
-        self.b_arr = b_arr
-        self.f = f
-        self.k = k
-        self.epsilon = epsilon
-        self.memory = 0
-    
+class Algorithm3(Algorithm):
+    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
 
     def __generate_i(self, be):
         i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
@@ -121,9 +125,12 @@ class Algorithm3:
     @logger.catch
     def run(self):
         n = len(self.e_arr)
-        x = np.full(n, 0)
+        x = np.full(n, 1)
         with tqdm(total=n, leave=False, desc="Algorithm 3") as pbar:
             for e in self.e_arr:
+                if not self.is_source[e]:
+                    pbar.update(1)
+                    continue
                 be = self.b_arr[e]
                 xe = np.full(n, 0)
                 xe[e] = 1
@@ -135,6 +142,8 @@ class Algorithm3:
         has_at_least_one = False
         x_sum = 0
         for index in reversed(range(n)):
+            if not self.is_source[index]:
+                continue
             if x[index] > 0 and not has_at_least_one:
                 x_new[index] = x[index]
                 has_at_least_one = True
@@ -147,14 +156,9 @@ class Algorithm3:
         self.memory = get_memory()
         return x_new
 
-class Algorithm4:
-    def __init__(self, e_arr, b_arr, f, k, epsilon):
-        self.e_arr = e_arr
-        self.b_arr = b_arr
-        self.f = f
-        self.k = k
-        self.epsilon = epsilon
-        self.memory = 0
+class Algorithm4(Algorithm):
+    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
 
     def __generate_i(self, be):
         i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
@@ -195,17 +199,23 @@ class Algorithm4:
     @logger.catch
     def run(self):
         algorithm3 = Algorithm3(self.e_arr, self.b_arr, self.f, self.k, self.epsilon)
-        gamma = self.f(algorithm3.run())
-        theta = 2 * (2 - self.epsilon) * gamma /((1 - self.epsilon) * self.k)
         n = len(self.e_arr)
+        x0 = algorithm3.run()
+        gamma = self.f(x0)
+        theta = 2 * (2 - self.epsilon) * gamma /((1 - self.epsilon) * self.k)
         x = np.full(n, 0)
         xe_dict = {}
         exit_threshold = (1 - self.epsilon) * gamma / (4 * self.k) 
-        estimated_iterations = np.ceil(log_base_n(1 + self.epsilon, exit_threshold/theta))
-        logger.info(f'Estimated iter: {estimated_iterations}, exit: {exit_threshold}, gamma: {gamma}')
-        with tqdm(total=estimated_iterations, leave=False, desc="Algorithm 4") as pbar:
-            while theta >= (1 - self.epsilon) * gamma / (4 * self.k):
+        with tqdm(total=n, leave=False) as pbar:
+            while theta >= exit_threshold:
+                pbar.reset()
+                desc = f'Algorithm 4 [{round(theta,2)} >= {round(exit_threshold,2)}]'
+                pbar.set_description(desc)
+                pbar.refresh()
                 for e in self.e_arr:
+                    if not self.is_source[e]:
+                        pbar.update(1)
+                        continue
                     if e not in xe_dict:
                         xe_dict[e] = np.full(n, 0)
                         xe_dict[e][e] = 1
@@ -217,23 +227,20 @@ class Algorithm4:
                         x += xe_dict[e] * k_new
                     else:
                         break
-                pbar.update(1)
+                    pbar.update(1)
                 theta = (1 - self.epsilon) * theta
+                if theta == 0:
+                    break
         self.memory = get_memory()
         return x
 
-class ThresholdGreedy:
-    def __init__(self, e_arr, b_arr, f, k, epsilon):
-        self.e_arr = e_arr
-        self.b_arr = b_arr
-        self.f = f
-        self.k = k
-        self.epsilon = epsilon
-        self.memory = 0
+class ThresholdGreedy(Algorithm):
+    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
 
     def __binary_search(self, x, e, tau):
         l = 1
-        r = min(self.b_arr[e] - x[e], self.k - sum(x))
+        r = min(self.b_arr[e] - x[e], self.k - np.sum(x))
         xe = np.zeros(len(x))
         xe[e] = 1
         fx = self.f(x)
@@ -263,15 +270,22 @@ class ThresholdGreedy:
         d = max([self.f(xe) for xe in ls_xe])
         tau = d
         threshold = self.epsilon / self.k * d
-        with tqdm(total = self.k, leave=False, desc="Threshold Greedy") as pbar:
+        with tqdm(total = n, leave=False) as pbar:
             while tau >= threshold:
+                pbar.reset()
+                desc = f'ThGreedy [{round(tau, 2)} >= {round(threshold, 2)}]'
+                pbar.set_description(desc)
+                pbar.refresh()
                 for e in self.e_arr:
+                    if not self.is_source[e]:
+                        pbar.update(1)
+                        continue
                     l = self.__binary_search(x, e, tau)
                     x += l * ls_xe[e]
-                    if sum(x) == self.k:
-                        pbar.update(l)
+                    if np.sum(x) == self.k:
                         self.memory = get_memory()
                         return x
-                    pbar.update(int(l))
+                    pbar.update(1)
+                tau *= (1 - self.epsilon)
         self.memory = get_memory()
         return x

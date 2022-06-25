@@ -17,7 +17,7 @@ if __name__ == "__main__":
     for dataset, delimiter in zip(datasets, delimiters):
         results = []
         logger.info(f'Processing {dataset}')
-        E, pst = read_dataset(f'{data_dir}/{dataset}', delimiter=delimiter)
+        E, pst, is_source = read_dataset(f'{data_dir}/{dataset}', delimiter=delimiter)
         n = len(E)
         #f = monotone_reduction(n)
         #E = list(range(n))
@@ -27,7 +27,8 @@ if __name__ == "__main__":
             f.reset() 
             B = np.full(n, b)
             start = time.time()
-            alg4 = Algorithm4(e_arr=E, b_arr=B, f=f, k=k, epsilon=epsilon)
+            alg4 = Algorithm4(e_arr=E, b_arr=B, f=f, k=k, 
+                              epsilon=epsilon, is_source=is_source)
             x = alg4.run()
             duration = time.time() - start
             results.append(to_result(epsilon, int(b), int(k), 
