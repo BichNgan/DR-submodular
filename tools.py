@@ -47,7 +47,7 @@ def read_dataset(dataset, reindex=True, max_rating=5, delimiter=','):
                 pbar.update(1)
             for edge in edges:
                 u, v, w = edge
-                is_source[u] = True
+                is_source[new_index[u]] = True
                 pst[new_index[u], new_index[v]] = w
                 pbar.update(1)
             return np.arange(n), pst, is_source
