@@ -33,10 +33,10 @@ class Algorithm2(Algorithm):
         return o_arr
 
     def __generate_i(self, be):
-        i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
-        i_max = int(np.floor(log_base_n((1 + self.epsilon), 1)))
+        i_min = int(np.ceil(log_base_n((1 - self.epsilon), 1/be)))
+        i_max = int(np.floor(log_base_n((1 - self.epsilon), 1)))
         i_power = np.arange(i_min, i_max+1)
-        i_base = np.full(len(i_power), 1 + self.epsilon)
+        i_base = np.full(len(i_power), 1 - self.epsilon)
         i_arr = set(np.ceil(np.power(i_base, i_power)*be).astype(int))
         return list(i_arr)
 
@@ -103,10 +103,10 @@ class Algorithm3(Algorithm):
         Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
 
     def __generate_i(self, be):
-        i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
-        i_max = int(np.floor(log_base_n((1 + self.epsilon), 1)))
+        i_min = int(np.ceil(log_base_n((1 - self.epsilon), 1/be)))
+        i_max = int(np.floor(log_base_n((1 - self.epsilon), 1)))
         i_power = np.arange(i_min, i_max+1)
-        i_base = np.full(len(i_power), 1 + self.epsilon)
+        i_base = np.full(len(i_power), 1 - self.epsilon)
         i_arr = set(np.ceil(np.power(i_base, i_power)*be).astype(int))
         return list(i_arr)
 
@@ -161,10 +161,10 @@ class Algorithm4(Algorithm):
         Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
 
     def __generate_i(self, be):
-        i_min = int(np.ceil(log_base_n((1 + self.epsilon), 1/be)))
-        i_max = int(np.floor(log_base_n((1 + self.epsilon), 1)))
+        i_min = int(np.ceil(log_base_n((1 - self.epsilon), 1/be)))
+        i_max = int(np.floor(log_base_n((1 - self.epsilon), 1)))
         i_power = np.arange(i_min, i_max+1)
-        i_base = np.full(len(i_power), 1 + self.epsilon)
+        i_base = np.full(len(i_power), 1 - self.epsilon)
         i_arr = set(np.ceil(np.power(i_base, i_power)*be).astype(int))
         return list(i_arr)
 
