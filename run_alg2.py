@@ -8,7 +8,7 @@ from algorithms import Algorithm2
 from result import *
 from configs import *
 from tools import read_dataset
-from objective_functions import budget_allocation, monotone_reduction
+from objective_functions import BudgetAllocation, budget_allocation, monotone_reduction
 
 if __name__ == "__main__":
     init_config()
@@ -17,18 +17,26 @@ if __name__ == "__main__":
     for dataset, delimiter in zip(datasets, delimiters):
         results = []
         logger.info(f'Processing {dataset}')
-        E, pst, is_source = read_dataset(f'{data_dir}/{dataset}', delimiter=delimiter)
+        E, targets, adj, w = read_dataset(f'{data_dir}/{dataset}', 
+                                          delimiter=delimiter, 
+                                          reverse=True)
         n = len(E)
         #f = monotone_reduction(n)
         #E = list(range(n))
-        f = budget_allocation(n, pst)
+        #f = budget_allocation(n, pst)
+        f = BudgetAllocation(E, adj, w)
+        x = np.full(n, 5)
+        start = time.time()
+        fx = f(x)
+        duration = time.time() - start
+        logger.info(f'fx {fx} - time {duration}')
         for b, k in zip(b_values, k_values):
             logger.info(f'### Running for b={b} and k={k} ###')
             f.reset() 
-            B = np.full(n, b)
+            B = np.full(n, 10)
             start = time.time()
             alg2 = Algorithm2(e_arr=E, b_arr=B, f=f, k=k, 
-                              epsilon=epsilon, is_source=is_source)
+                              epsilon=epsilon)
             x = alg2.run()
             duration = time.time() - start
             results.append(to_result(epsilon, int(b), int(k), 

@@ -31,3 +31,34 @@ def budget_allocation(n, pst=None):
         targets = np.dot(np.ones(len(pst[sources])), pst[sources]) > 0 
         return sum(map(product_of_power, wst_t[targets])) 
     return OracleCounter(function)
+
+class BudgetAllocation:
+    def __init__(self, sources, adjacencies, weights):
+        self.w = np.array(weights)
+        self.adj = adjacencies
+        self.sources = np.array(sources)
+        self.__count = 0
+    
+    def reset(self):
+        self.__count = 0
+
+    @property
+    def count(self):
+        return self.__count
+
+    def __product_of_power(self, source):
+        return 1 - np.prod(np.power(self.w[source], self.__x_candidate))
+
+    def __call__(self, x):
+        self.__count += 1
+        targets = set()
+        self.__x_candidate = x
+        for s, target_of_s in zip(x, self.adj):
+            if s > 0:
+                targets.update(target_of_s)
+        return sum(map(self.__product_of_power, targets))
+        
+
+
+
+

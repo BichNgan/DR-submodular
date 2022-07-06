@@ -8,20 +8,17 @@ def log_base_n(n, x):
     return np.log(x) / np.log(n)
 
 class Algorithm:
-    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
+    def __init__(self, e_arr, b_arr, f, k, epsilon):
         self.e_arr = e_arr
         self.b_arr = b_arr
         self.f = f
         self.k = k
         self.epsilon = epsilon
         self.memory = 0
-        self.is_source = is_source
-        if self.is_source is None:
-            self.is_source = np.full(len(self.e_arr), True)
 
 class Algorithm2(Algorithm):
-    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
-        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
+    def __init__(self, e_arr, b_arr, f, k, epsilon):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon)
 
     def __generate_o(self, m):
         o_min = int(np.ceil(log_base_n(1 + self.epsilon, m)))
@@ -75,9 +72,6 @@ class Algorithm2(Algorithm):
         n = len(self.e_arr)
         with tqdm(total=n, leave=False, desc="Algorithm 2") as pbar:
             for e in self.e_arr:
-                if not self.is_source[e]:
-                    pbar.update(1)
-                    continue
                 xe = np.full(n, 0)
                 xe[e] = 1
                 m = max(self.f(xe), m)
@@ -99,8 +93,8 @@ class Algorithm2(Algorithm):
         return x_list[np.argmax(fx_list)]
 
 class Algorithm3(Algorithm):
-    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
-        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
+    def __init__(self, e_arr, b_arr, f, k, epsilon):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon)
 
     def __generate_i(self, be):
         i_max = int(np.floor(log_base_n((1 - self.epsilon), 1/be)))
@@ -128,9 +122,6 @@ class Algorithm3(Algorithm):
         x = np.full(n, 1)
         with tqdm(total=n, leave=False, desc="Algorithm 3") as pbar:
             for e in self.e_arr:
-                if not self.is_source[e]:
-                    pbar.update(1)
-                    continue
                 be = self.b_arr[e]
                 xe = np.full(n, 0)
                 xe[e] = 1
@@ -142,8 +133,6 @@ class Algorithm3(Algorithm):
         has_at_least_one = False
         x_sum = 0
         for index in reversed(range(n)):
-            if not self.is_source[index]:
-                continue
             if x[index] > 0 and not has_at_least_one:
                 x_new[index] = x[index]
                 has_at_least_one = True
@@ -157,8 +146,8 @@ class Algorithm3(Algorithm):
         return x_new
 
 class Algorithm4(Algorithm):
-    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
-        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
+    def __init__(self, e_arr, b_arr, f, k, epsilon):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon)
 
     def __generate_i(self, be):
         i_max = int(np.floor(log_base_n((1 - self.epsilon), 1/be)))
@@ -213,9 +202,6 @@ class Algorithm4(Algorithm):
                 pbar.set_description(desc)
                 pbar.refresh()
                 for e in self.e_arr:
-                    if not self.is_source[e]:
-                        pbar.update(1)
-                        continue
                     if e not in xe_dict:
                         xe_dict[e] = np.full(n, 0)
                         xe_dict[e][e] = 1
@@ -235,8 +221,8 @@ class Algorithm4(Algorithm):
         return x
 
 class ThresholdGreedy(Algorithm):
-    def __init__(self, e_arr, b_arr, f, k, epsilon, is_source=None):
-        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon, is_source)
+    def __init__(self, e_arr, b_arr, f, k, epsilon):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon)
 
     def __binary_search(self, x, e, tau):
         l = 1
@@ -277,9 +263,6 @@ class ThresholdGreedy(Algorithm):
                 pbar.set_description(desc)
                 pbar.refresh()
                 for e in self.e_arr:
-                    if not self.is_source[e]:
-                        pbar.update(1)
-                        continue
                     l = self.__binary_search(x, e, tau)
                     x += l * ls_xe[e]
                     if np.sum(x) == self.k:
