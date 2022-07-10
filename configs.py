@@ -2,14 +2,15 @@ import subprocess
 
 import numpy as np
 
-from algorithms import Algorithm2, Algorithm4, ThresholdGreedy
+from algorithms import Algorithm2, Algorithm4, SieveStreaming, ThresholdGreedy
 
 class Configuration:
     def __init__(self):
         self.algs = {
                 'alg2': Algorithm2,
                 'alg4': Algorithm4,
-                'tg': ThresholdGreedy
+                'tg': ThresholdGreedy,
+                'sieve': SieveStreaming
                 }
         self.data_dir = 'data'
         self.datasets = {

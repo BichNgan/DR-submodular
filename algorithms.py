@@ -272,3 +272,67 @@ class ThresholdGreedy(Algorithm):
                 tau *= (1 - self.epsilon)
         self.memory = get_memory()
         return x
+
+class SieveStreaming(Algorithm):
+    def __init__(self, e_arr, b_arr, f, k, epsilon):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon)
+
+    def __binary_search(self, x, xe, e, tau):
+        l = 1
+        r = min(self.b_arr[e] - x[e], self.k - np.sum(x))
+        fx = self.f(x)
+        if self.f(x + r*xe) - fx >= tau:
+            return r
+        if self.f(x + xe) - fx < tau:
+            return 0
+        while r > l + 1:
+            m = (l + r) // 2
+            if self.f(x + m*xe) - fx >= tau:
+                l = m
+                continue
+            r = m
+        return l
+
+    def __generate_h(self, alpha, theta):
+        gamma = 1 + self.epsilon
+        h_min = int(np.ceil(log_base_n(gamma, theta / gamma)))
+        h_max = int(np.floor(log_base_n(gamma, 2 * self.k * alpha)))
+        h_power = np.arange(h_min, h_max + 1)
+        h_base = np.full(len(h_power), gamma)
+        h_arr = set(np.ceil(np.power(h_base, h_power)).astype(int))
+        return h_arr
+    
+    @logger.catch
+    def run(self):
+        xv_dict = dict()
+        alpha = 0
+        theta = 0
+        eta = 0
+        n = len(self.e_arr)
+        with tqdm(total=n, leave=False, desc='Sieve Streaming') as pbar:
+            for e in self.e_arr:
+                xe = np.zeros(n)
+                xe[e] = 1
+                alpha = max(alpha, self.f(xe))
+                theta = max(alpha, eta)
+                h = self.__generate_h(alpha, theta)
+                v_previous = set(xv_dict.keys())
+                # remove v that is outside of h
+                for v in v_previous.difference(h):
+                    xv_dict.pop(v)
+                for v in h:
+                    if v not in xv_dict:
+                        xv_dict[v] = np.zeros(n)
+                    xE = sum(xv_dict[v])
+                    if xE < self.k:
+                        tau = (v/2 - self.f(xv_dict[v])) / (self.k - xE)
+                        l = self.__binary_search(xv_dict[v], xe, e, tau)
+                        xv_dict[v] += l*xe
+                fxv = [self.f(xv_dict[v]) for v in xv_dict.keys()]
+                fxv.append(eta)
+                eta = max(fxv)
+                pbar.update(1)
+        x_list = [xv_dict[key] for key in xv_dict.keys()]
+        fx_list = [self.f(x) for x in x_list]
+        self.memory = get_memory()
+        return x_list[np.argmax(fx_list)]
