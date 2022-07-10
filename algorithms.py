@@ -336,3 +336,53 @@ class SieveStreaming(Algorithm):
         fx_list = [self.f(x) for x in x_list]
         self.memory = get_memory()
         return x_list[np.argmax(fx_list)]
+
+class SomaCardinality(Algorithm):
+    def __init__(self, e_arr, b_arr, f, k, epsilon):
+        Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon)
+
+    def __binary_search(self, x, e, tau):
+        l = 1
+        r = min(self.b_arr[e] - x[e], self.k - np.sum(x))
+        xe = np.zeros(len(x))
+        xe[e] = 1
+        fx = self.f(x)
+        if self.f(x + r*xe) - fx >= tau:
+            return r
+        if self.f(x + xe) - fx < tau:
+            return 0
+        while r > l + 1:
+            m = (l + r) // 2
+            if self.f(x + m*xe) - fx >= tau:
+                l = m
+                continue
+            r = m
+        return l
+
+    @logger.catch
+    def run(self):
+        n = len(self.e_arr)
+
+        def create_xe(e):
+            xe = np.zeros(n)
+            xe[e] = 1
+            return xe
+
+        x = np.zeros(n)
+        ls_xe = [create_xe(e) for e in self.e_arr]
+        d = max([self.f(xe) for xe in ls_xe])
+        tau = d
+        threshold = self.epsilon / self.k * d
+        with tqdm(total = n, leave=False) as pbar:
+            while tau >= threshold:
+                pbar.reset()
+                desc = f'Soma Cardinality [{round(tau, 2)} >= {round(threshold, 2)}]'
+                pbar.set_description(desc)
+                pbar.refresh()
+                for e in self.e_arr:
+                    l = self.__binary_search(x, e, tau)
+                    x += l * ls_xe[e]
+                    pbar.update(1)
+                tau *= (1 - self.epsilon)
+        self.memory = get_memory()
+        return x

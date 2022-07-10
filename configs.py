@@ -2,7 +2,7 @@ import subprocess
 
 import numpy as np
 
-from algorithms import Algorithm2, Algorithm4, SieveStreaming, ThresholdGreedy
+from algorithms import Algorithm2, Algorithm4, SieveStreaming, SomaCardinality, ThresholdGreedy
 
 class Configuration:
     def __init__(self):
@@ -10,7 +10,8 @@ class Configuration:
                 'alg2': Algorithm2,
                 'alg4': Algorithm4,
                 'tg': ThresholdGreedy,
-                'sieve': SieveStreaming
+                'sieve': SieveStreaming,
+                'soma': SomaCardinality
                 }
         self.data_dir = 'data'
         self.datasets = {
