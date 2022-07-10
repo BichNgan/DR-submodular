@@ -11,7 +11,7 @@ def get_memory():
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / (1024**3)
 
-def read_dataset(dataset, max_value=5, 
+def read_dataset(dataset, max_weight=5, 
                  delimiter='\t', reverse=False):
     """Return sources, targets, adjacencies and weights from target to source from dataset"""
     sources = set()
@@ -26,7 +26,7 @@ def read_dataset(dataset, max_value=5,
                 try:
                     u = int(row[0])
                     v = int(row[1])
-                    w = float(row[2]) / max_value
+                    w = float(row[2]) / max_weight
                     if reverse:
                         sources.add(v)
                         targets.add(u)
