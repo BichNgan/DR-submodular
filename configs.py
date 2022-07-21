@@ -38,6 +38,12 @@ class Configuration:
                     'delimiter': '\t',
                     'output': 'reuters.csv',
                     'max_weight': 245
+                    },
+                'nips': {
+                    'dir': self.data_dir + '/out.bag-nips',
+                    'delimiter': '\t',
+                    'output': 'nip.csv',
+                    'max_weight': 132
                     }
                 }
         self.log_dir = 'log'
