@@ -6,7 +6,6 @@ import sys
 from loguru import logger
 import numpy as np
 
-from algorithms import Algorithm2
 from result import *
 from configs import Configuration
 from tools import read_dataset

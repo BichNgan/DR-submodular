@@ -32,6 +32,12 @@ class Configuration:
                     'delimiter': '\t',
                     'output': 'bag_enron.csv',
                     'max_weight': 403
+                    },
+                'reuters': {
+                    'dir': self.data_dir + '/out.gottron-reuters',
+                    'delimiter': '\t',
+                    'output': 'reuters.csv',
+                    'max_weight': 245
                     }
                 }
         self.log_dir = 'log'
