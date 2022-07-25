@@ -39,6 +39,6 @@
         "delimiter": "\t",
         "output": "nips.csv",
         "max_weight": 132.0,
-        "reverse_st": true
+        "reverse_st": false
     }
 }
