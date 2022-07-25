@@ -28,7 +28,7 @@ def run(config, alg_arg, ds_args):
         E, targets, adj, w = read_dataset(dsdir, 
                                           max_weight=ds['max_weight'],
                                           delimiter=ds['delimiter'], 
-                                          reverse=True)
+                                          reverse=ds['reverse_st'])
         n = len(E)
         f = BudgetAllocation(E, adj, w)
         for k in config.k_values:

@@ -1,3 +1,4 @@
+import json
 import subprocess
 
 import numpy as np
@@ -14,42 +15,16 @@ class Configuration:
                 'soma': SomaCardinality
                 }
         self.data_dir = 'data'
-        self.datasets = {
-                'wiki': {
-                    'dir': self.data_dir + '/out.wikilens-ratings',
-                    'delimiter': '\t',
-                    'output': 'wikilens.csv',
-                    'max_weight': 5
-                    },
-                'movie': {
-                    'dir': self.data_dir + '/out.movielens-1m',
-                    'delimiter': ' ',
-                    'output': 'movielens.csv',
-                    'max_weight': 5
-                    },
-                'enron': {
-                    'dir': self.data_dir + '/out.bag-enron',
-                    'delimiter': '\t',
-                    'output': 'bag_enron.csv',
-                    'max_weight': 403
-                    },
-                'reuters': {
-                    'dir': self.data_dir + '/out.gottron-reuters',
-                    'delimiter': '\t',
-                    'output': 'reuters.csv',
-                    'max_weight': 245
-                    },
-                'nips': {
-                    'dir': self.data_dir + '/out.bag-nips',
-                    'delimiter': '\t',
-                    'output': 'nip.csv',
-                    'max_weight': 132
-                    }
-                }
         self.log_dir = 'log'
+        with open('dataset_meta.json', 'r') as file:
+            self.datasets = json.load(file)
         self.output_dir = 'output'
-        self.k_values = np.array([200, 400, 600, 800, 1000])
+        # big k and b
+        self.k_values = np.arange(200, 1200, 200)
         self.b_max = 10
+        # small k and b
+        #self.k_values = np.arange(10, 110, 10)     
+        #self.b_max = 3
         self.epsilon = 0.1
         self.init_dir()
 

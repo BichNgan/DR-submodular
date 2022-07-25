@@ -27,7 +27,7 @@ def run(config, alg_arg, dataset, k):
     E, targets, adj, w = read_dataset(dsdir, 
                                       max_weight=ds['max_weight'],
                                       delimiter=ds['delimiter'], 
-                                      reverse=True)
+                                      reverse=ds['reverse_st'])
     n = len(E)
     f = BudgetAllocation(E, adj, w)
     logger.info(f'### Running for b={config.b_max} and k={k} ###')
