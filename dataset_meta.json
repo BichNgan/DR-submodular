@@ -40,5 +40,12 @@
         "output": "nips.csv",
         "max_weight": 132.0,
         "reverse_st": false
+    },
+    "film": {
+        "dir": "data/out.librec-filmtrust-ratings",
+        "delimiter": "\t",
+        "output": "filmtrust.csv",
+        "max_weight": 4.0,
+        "reverse_st": false
     }
 }
