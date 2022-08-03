@@ -19,12 +19,8 @@ class Configuration:
         with open('dataset_meta.json', 'r') as file:
             self.datasets = json.load(file)
         self.output_dir = 'output'
-        # big k and b
-        self.k_values = np.arange(200, 1200, 200)
-        self.b_max = 10
-        # small k and b
-        #self.k_values = np.arange(10, 110, 10)     
-        #self.b_max = 3
+        self.k_values = np.arange(100, 301, 50)     
+        self.b_max = 3
         self.epsilon = 0.1
         self.init_dir()
 
