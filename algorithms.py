@@ -347,13 +347,13 @@ class SomaCardinality(Algorithm):
         xe = np.zeros(len(x))
         xe[e] = 1
         fx = self.f(x)
-        if self.f(x + r*xe) - fx >= tau:
+        if self.f(x + r*xe) - fx >= r * tau:
             return r
-        if self.f(x + xe) - fx < tau:
+        if self.f(x + xe) - fx < l * tau:
             return 0
         while r > l + 1:
             m = (l + r) // 2
-            if self.f(x + m*xe) - fx >= tau:
+            if self.f(x + m*xe) - fx >= m * tau:
                 l = m
                 continue
             r = m
