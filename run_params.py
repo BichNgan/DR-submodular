@@ -13,7 +13,7 @@ from objective_functions import BudgetAllocation
 
 def run(config, alg_arg, dataset, k):
     log_dir = (f"{config.log_dir}/" 
-               + f"alg2_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')}.log")
+               + f"{alg_arg}_{datetime.now().strftime('%Y-%m-%d_%H:%M:%S.%f')}.log")
     logger.add(log_dir, rotation="20 MB")
     # loop thru argument datasets
     if dataset not in config.datasets:
