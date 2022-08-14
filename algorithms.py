@@ -39,17 +39,6 @@ class Algorithm2(Algorithm):
         i_arr.sort()
         return i_arr
 
-    def __find_ke(self, xv, xe, i_arr, v):
-        fx = self.f(xv)
-        delta_f = np.array([(self.f(xv + xe*i) - fx) for i in i_arr])
-        i_np = np.array(i_arr)
-        evaluation = i_np * v / (2 * self.k)
-        try:
-          result = np.min(i_np[delta_f < evaluation])
-          return result
-        except:
-          return 0
-
     def __binary_search(self, x_arr, xe, i_arr, v):
         l = 0
         r = len(i_arr) - 1
@@ -107,9 +96,6 @@ class Algorithm3(Algorithm):
         return list(i_arr)
 
     def __find_ke(self, x, xe, i_arr):
-        #fx = self.f(x)
-        #if fx == 0 or np.sum(x) < self.k:
-        #    return np.min(i_arr)
         if len(i_arr) == 0:
             return 0
         if len(i_arr) == 1:
@@ -161,24 +147,6 @@ class Algorithm3(Algorithm):
 class Algorithm4(Algorithm):
     def __init__(self, e_arr, b_arr, f, k, epsilon):
         Algorithm.__init__(self, e_arr, b_arr, f, k, epsilon)
-
-    def __generate_i(self, be):
-        i_max = int(np.floor(log_base_n((1 - self.epsilon), 1/be)))
-        i_min = 0 
-        i_power = np.arange(i_min, i_max+1)
-        i_base = np.full(len(i_power), 1 - self.epsilon)
-        i_arr = set(np.ceil(np.power(i_base, i_power)*be).astype(int))
-        return list(i_arr)
-
-    def __find_ke(self, x, xe, i_arr, theta):
-        fx = self.f(x)
-        delta_f = np.array([(self.f(x + xe*i) - fx) for i in i_arr])
-        i_np = np.array(i_arr)
-        try:
-            result = np.min(i_np[delta_f < theta])
-            return result
-        except:
-            return 0
 
     def __binary_search(self, x, xe, i_arr, theta):
         try:
