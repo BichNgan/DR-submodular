@@ -35,7 +35,9 @@ class Algorithm2(Algorithm):
         i_power = np.arange(i_min, i_max+1)
         i_base = np.full(len(i_power), 1 - self.epsilon)
         i_arr = set(np.ceil(np.power(i_base, i_power)*be).astype(int))
-        return list(i_arr)
+        i_arr = list(i_arr)
+        i_arr.sort()
+        return i_arr
 
     def __find_ke(self, xv, xe, i_arr, v):
         fx = self.f(xv)
@@ -105,16 +107,27 @@ class Algorithm3(Algorithm):
         return list(i_arr)
 
     def __find_ke(self, x, xe, i_arr):
-        fx = self.f(x)
-        if fx == 0 or np.sum(x) < self.k:
-            return np.min(i_arr)
-        i_np = np.array(i_arr)
-        f_left = np.array([(self.f(x + xe*i) - fx) for i in i_arr])
-        f_right = np.array([i * fx/self.k for i in i_arr])
+        #fx = self.f(x)
+        #if fx == 0 or np.sum(x) < self.k:
+        #    return np.min(i_arr)
+        if len(i_arr) == 0:
+            return 0
+        if len(i_arr) == 1:
+            return i_arr[0]
+
+        fxe = lambda i: self.f(x + i_arr[i]*xe) - self.f(x + (i_arr[i]-1)*xe)
+
+        first_condition = lambda t: fxe(t) < self.f(x + i_arr[t-1]*xe)/self.k
+        second_condition = lambda t: np.all(
+                [fxe(j) >= self.f(x + i_arr[j-1]*xe)/self.k 
+                    for j in range(1, t+1)])
+        ke_candidates = [i_arr[t]-1 for t in range(1, len(i_arr)) 
+                            if first_condition(t) and second_condition(t)]
         try:
-            return np.min(i_np[f_left < f_right])
+            return np.max(ke_candidates)
         except:
             return 0
+        
     
     @logger.catch
     def run(self):
@@ -168,20 +181,21 @@ class Algorithm4(Algorithm):
             return 0
 
     def __binary_search(self, x, xe, i_arr, theta):
-        l = 0
-        r = len(i_arr) - 1
-        fx = self.f(x)
-        if self.f(x + i_arr[0] * xe) - fx < theta:
-            return i_arr[0]
-        while r > l:
-            m = (l + r) // 2
-            df = self.f(x + i_arr[m] * xe) - fx
-            if df >= theta:
-                r = m - 1
-                continue
-            break
         try:
-            return min(i_arr[l:r+1])
+            l = 0
+            r = len(i_arr) - 1
+            fx = self.f(x)
+            fi = lambda i: (self.f(x + i_arr[i]*xe) - fx)/i_arr[i]
+            if fi(0) < theta:
+                return i_arr[0]
+            while r > l:
+                m = (l + r) // 2
+                df = (self.f(x + i_arr[m] * xe) - fx)/i_arr[m]
+                if df >= theta:
+                    l = m + 1
+                else:
+                    r = m - 1
+            return i_arr[l] - 1
         except:
             return 0
     
@@ -191,7 +205,7 @@ class Algorithm4(Algorithm):
         n = len(self.e_arr)
         x0 = algorithm3.run()
         gamma = self.f(x0)
-        theta = 2 * (2 - self.epsilon) * gamma /((1 - self.epsilon) * self.k)
+        theta = (4 - 3*self.epsilon) * gamma /((1 - 3*self.epsilon) * self.k)
         x = np.full(n, 0)
         xe_dict = {}
         exit_threshold = (1 - self.epsilon) * gamma / (4 * self.k) 
@@ -206,7 +220,7 @@ class Algorithm4(Algorithm):
                         xe_dict[e] = np.full(n, 0)
                         xe_dict[e][e] = 1
                     be = self.b_arr[e]
-                    i_arr = self.__generate_i(be)
+                    i_arr = np.arange(1, be+1) 
                     ke = self.__binary_search(x, xe_dict[e], i_arr, theta)
                     k_new = min(ke, self.k - np.sum(x))
                     if k_new != 0:
